@@ -1,5 +1,8 @@
 #!/usr/bin/ruby
 
+require 'yaml'
+require 'pp'
+
 class Ansi
 end
 
@@ -13,19 +16,40 @@ class ColorRule
   end
 
   def check(line)
-    return @regexp =~ line
+    result = @regexp =~ line
+    return result
   end
 end
 
+ruletext = <<"EOF"
+- condition: "\\] DEBUG\\:"
+  ansi: "\033[36m\033[1m"
+- condition: "\\] INFO\\:"
+  ansi: "\033[37m\033[1m"
+- condition: "\\] exception\\ "
+  ansi: "\033[31m\033[1m"
+- condition: "\\] PHP\ Notice\\:"
+  ansi: "\033[31m\033[1m"
+- condition: "\\] WARN\\:"
+  ansi: "\033[33m\033[1m"
+- condition: "\\] PHP\\ Fatal"
+  ansi: "\033[31m\033[1m"
+- condition: "\\] ERROR\\:"
+  ansi: "\033[31m\033[1m"
+- condition: "\\] DEBUG\\:Do\\ not\\ use\\:"
+  ansi: "\033[33m\033[1m"
+EOF
+
+yamlData = YAML.load(ruletext)
+
 rules = []
-rules << ColorRule.new('\] DEBUG\:', "\033[36m\033[1m")
-rules << ColorRule.new("\\] INFO\:", "\033[37m\033[1m")
-rules << ColorRule.new("\\] exception\ ", "\033[31m\033[1m")
-rules << ColorRule.new("\\] PHP\ Notice\:", "\033[31m\033[1m")
-rules << ColorRule.new("\\] WARN\:", "\033[33m\033[1m")
-rules << ColorRule.new("\\] PHP\ Fatal", "\033[31m\033[1m")
-rules << ColorRule.new("\\] ERROR\:", "\033[31m\033[1m")
-rules << ColorRule.new("\\] DEBUG\\:Do\\ not\\ use\\:", "\033[33m\033[1m")
+yamlData.each do |y|
+  pp y
+
+  rules << ColorRule.new(y['condition'], y['ansi'])
+end
+
+pp rules
 
 escape = ''
 while line = STDIN.gets do
