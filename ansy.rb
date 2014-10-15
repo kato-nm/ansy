@@ -21,6 +21,7 @@ class ColorRule
   end
 end
 
+# 外部ファイルに出力
 ruletext = <<"EOF"
 - condition: "\\] DEBUG\\:"
   ansi: "\033[36m\033[1m"
